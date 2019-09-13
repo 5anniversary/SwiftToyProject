@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:SwiftToy.xcodeproj">
+      location = "self:Toy1.xcodeproj">
    </FileRef>
 </Workspace>
