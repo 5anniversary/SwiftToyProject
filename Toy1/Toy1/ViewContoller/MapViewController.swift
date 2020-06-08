@@ -62,7 +62,12 @@ class MapViewController: UIViewController {
         view.addSubview(resetButton)
         view.addSubview(myLocationLabel)
         view.addSubview(pinLocationLabel)
+        view.anchor().edgesToSuperview().activate()
         
+        goButton.addTarget(self, action: #selector(goButtonTapped), for: .touchUpInside)
+        resetButton.addTarget(self, action: #selector(checkLocationServices), for: .touchUpInside)
+        
+        checkLocationServices()
         setLayout()
     }
     
@@ -78,6 +83,16 @@ class MapViewController: UIViewController {
     func goButtonTapped() {
         getDirections()
     }
+    
+    @IBAction func myLocationButtonDidTouch() {
+        
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestAlwaysAuthorization()
+        locationManager.startUpdatingLocation()
+    }
+
     
     func setLayout() {
         NSLayoutConstraint.activate([
@@ -121,8 +136,8 @@ class MapViewController: UIViewController {
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
-        mapView.showsUserLocation = true
         mapView.delegate = self
+        mapView.showsUserLocation = true
     }
 
     func centerViewOnUserLocation() {
@@ -132,7 +147,7 @@ class MapViewController: UIViewController {
         }
     }
 
-    func checkLocationServices() {
+    @objc func checkLocationServices() {
         if CLLocationManager.locationServicesEnabled() {
     
             setupLocationManager()
@@ -214,44 +229,93 @@ class MapViewController: UIViewController {
 // MARK: - CLLocationManagerDelegate
 extension MapViewController : CLLocationManagerDelegate {
 
-//        func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-//
-//            self.locationLabel.text = "Error while updating location " + error.localizedDescription
-//
-//        }
-//
-//        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//            CLGeocoder().reverseGeocodeLocation(locations.first!) { (placemarks, error) in
-//                guard error == nil else {
-//                    self.locationLabel.text = "Reverse geocoder failed with error" + error!.localizedDescription
-//                    return
-//                }
-//                if placemarks!.count > 0 {
-//                    let pm = placemarks!.first
-//                    self.displayLocationInfo(pm)
-//                } else {
-//                    self.locationLabel.text = "Problem with the data received from geocoder"
-//                }
-//            }
-//        }
-//
-//        func displayLocationInfo(_ placemark: CLPlacemark?) {
-//            if let containsPlacemark = placemark {
-//                //stop updating location to save battery life
-//                locationManager.stopUpdatingLocation()
-//
-//                let country = (containsPlacemark.country != nil) ? containsPlacemark.country : ""   // 나라
-//                let administrativeArea = (containsPlacemark.administrativeArea != nil) ? containsPlacemark.administrativeArea : ""  //시, 군, 구
-//                let locality = (containsPlacemark.locality != nil) ? containsPlacemark.locality : ""    // 구
-//                let street = (containsPlacemark.thoroughfare != nil) ?containsPlacemark.thoroughfare : "" // 도로명
-//                let postalCode = (containsPlacemark.postalCode != nil) ? containsPlacemark.postalCode : ""  // 우편번호
-//
-//                self.locationLabel.text = country! + " " + administrativeArea! + " " + locality! + " " + street! + " " + postalCode!
-//            }
-//        }
+        func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+
+            self.myLocationLabel.text = "Error while updating location " + error.localizedDescription
+            self.pinLocationLabel.text = "Error while updating location " + error.localizedDescription
+
+        }
+
+        func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+            CLGeocoder().reverseGeocodeLocation(locations.first!) { (placemarks, error) in
+                guard error == nil else {
+                    self.myLocationLabel.text = "Reverse geocoder failed with error" + error!.localizedDescription
+                    self.pinLocationLabel.text = "Reverse geocoder failed with error" + error!.localizedDescription
+                    return
+                }
+                if placemarks!.count > 0 {
+                    let pm = placemarks!.first
+                    self.displayLocationInfo(pm)
+                } else {
+                    self.myLocationLabel.text = "Problem with the data received from geocoder"
+                    self.pinLocationLabel.text = "Problem with the data received from geocoder"
+                }
+            }
+        }
+
+        func displayLocationInfo(_ placemark: CLPlacemark?) {
+            if let containsPlacemark = placemark {
+                //stop updating location to save battery life
+                locationManager.stopUpdatingLocation()
+                
+                var num = 1
+
+                let country = (containsPlacemark.country != nil) ? containsPlacemark.country : ""   // 나라
+                let administrativeArea = (containsPlacemark.administrativeArea != nil) ? containsPlacemark.administrativeArea : ""  //시, 군, 구
+                let locality = (containsPlacemark.locality != nil) ? containsPlacemark.locality : ""    // 구
+                let street = (containsPlacemark.thoroughfare != nil) ?containsPlacemark.thoroughfare : "" // 도로명
+                let postalCode = (containsPlacemark.postalCode != nil) ? containsPlacemark.postalCode : ""  // 우편번호
+
+                var stnum = String(num)
+                
+                self.myLocationLabel.text = country! + " " + administrativeArea! + " " + locality! + " " + street! + " " + postalCode! + " " + stnum
+                num += 1
+            }
+        }
 }
 
 // MARK: - MKMapViewDelegate
 extension MapViewController : MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        let center = getCenterLocation(for: mapView)
+        let geoCoder = CLGeocoder()
+        
+        geoCoder.reverseGeocodeLocation(center) { [weak self] (placeMarks, error) in
+            guard let self = self else { return }
+            
+            guard let previousLocation = self.previousLocation else { return }
+            guard center.distance(from: previousLocation) > 50 else { return }
+            self.previousLocation = center
+            
+            geoCoder.cancelGeocode()
+            
+            if let _ = error {
+                // TODO: Show alert informingthe user
+                return
+            }
+            
+            guard let placeMark = placeMarks?.first else {
+                // TODO: Show alert informingthe user
+                return
+            }
+            
+            let streetNumber = placeMark.subThoroughfare ?? "" // 번지
+            let streetName = placeMark.thoroughfare ?? "" // 도로명
+            let countryName = placeMark.country ?? "" // 나라
+            let stateName = placeMark.administrativeArea ?? "" // 도시
+            let localName = placeMark.locality ?? "" // 구
+            
+            DispatchQueue.main.async {
+                let location = "\(countryName) \(stateName) \(localName) \(streetName) \(streetNumber) "
+                self.pinLocationLabel.text = location
+            }
+        }
+    }
     
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        let renderer = MKPolylineRenderer(overlay: overlay)
+        renderer.strokeColor = .blue
+        
+        return renderer
+    }
 }

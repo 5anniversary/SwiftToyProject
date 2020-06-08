@@ -7,17 +7,17 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--setting-->
+        <!--Kakao-->
         <scene sceneID="xMd-ZM-AKr">
             <objects>
-                <viewController id="93o-rt-uoh" sceneMemberID="viewController">
+                <viewController id="93o-rt-uoh" customClass="KakaoMapViewController" customModule="Toy1" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4l0-qx-LtA">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <viewLayoutGuide key="safeArea" id="dn8-vA-SgR"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="setting" id="ve3-pl-Tff"/>
+                    <tabBarItem key="tabBarItem" title="Kakao" id="ve3-pl-Tff"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Oeo-fs-Mig" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
