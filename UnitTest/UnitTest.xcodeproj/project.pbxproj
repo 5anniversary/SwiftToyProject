@@ -44,7 +44,7 @@
 		C547FD242603431B008DA529 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C547FD262603431B008DA529 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C547FD2B2603431B008DA529 /* UnitTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C547FD2F2603431B008DA529 /* UnitTestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitTestTests.swift; sourceTree = "<group>"; };
+		C547FD2F2603431B008DA529 /* UnitTestTests.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = UnitTestTests.swift; sourceTree = "<group>"; tabWidth = 2; };
 		C547FD312603431B008DA529 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C547FD362603431B008DA529 /* UnitTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C547FD3A2603431B008DA529 /* UnitTestUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitTestUITests.swift; sourceTree = "<group>"; };
